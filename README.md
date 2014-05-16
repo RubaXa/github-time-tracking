@@ -11,6 +11,8 @@
 
 
 ### Examples
+ ![Issue view](https://dl.dropboxusercontent.com/s/ijyzp40ck7x4zdo/Screenshot%202014-05-16%2017.11.18.png)
+ ---
  ![Time tracking](https://dl.dropboxusercontent.com/s/1fuggavm0nqew1x/Screenshot%202014-05-16%2017.14.27.png)
  ---
  ![Issues](https://dl.dropboxusercontent.com/s/5o99jqrzqclcx16/Screenshot%202014-05-16%2017.17.21.png)
