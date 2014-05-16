@@ -55,8 +55,8 @@
 
 	/**
 	 * Query selector all
-	 * @param   {String}  selector
-	 * @param   HTMLElement [ctx]
+	 * @param   {String}       selector
+	 * @param   {HTMLElement}  [ctx]
 	 * @returns {Array}
 	 */
 	function query(selector, ctx) {
@@ -65,9 +65,9 @@
 
 
 	/**
-	 * Query selector all
-	 * @param   {String}  selector
-	 * @param   HTMLElement [ctx]
+	 * Query selector
+	 * @param   {String}       selector
+	 * @param   {HTMLElement}  [ctx]
 	 * @returns {HTMLElement}
 	 */
 	function queryOne(selector, ctx) {
