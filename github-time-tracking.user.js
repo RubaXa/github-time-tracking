@@ -88,7 +88,8 @@
 
 
 		github = {
-			user: queryOne('meta[name="octolytics-actor-login"]').getAttribute('content')
+			user: queryOne('meta[name="octolytics-actor-id"]').getAttribute('content'),
+			login: queryOne('meta[name="octolytics-actor-login"]').getAttribute('content')
 		};
 
 
@@ -241,8 +242,7 @@
 	function parseTime(str) {
 		var minutes = str | 0;
 
-		str
-			.trim()
+		str.trim()
 			.replace(/(\d+):(\d+)/, '$1h $2m')
 			.replace(/(\d+)([dhm])/ig, function (_, num, mod) {
 				num = num | 0;
@@ -273,6 +273,7 @@
 				newModel(Time, {
 					time: time,
 					user: github.user,
+					login: github.login,
 					issue: issue.id,
 					project: issue.get('project')
 				});
@@ -286,12 +287,18 @@
 	}
 
 
-	function formatDate(minutes) {
-		return Math.floor(minutes / 60) + 'h ' + Math.floor(minutes % 60) + 'm';
+	function formatDate(date, format) {
+		if (format === 'd.m.Y H:I') {
+			return date.toISOString().replace(/^(\d+)-(\d+)-(\d+)T(\d+:\d+).+\..+/, '$3.$2.$1 $4');
+		}
+
+		return Math.floor(date / 60) + 'h ' + Math.floor(date % 60) + 'm';
 	}
 
 
 	function updUI() {
+		var issueNumber = (location.toString().match(/issues\/(\d+)/) || [])[1];
+
 		query('.list-group-item-number,.gh-header-number').forEach(function (el) {
 			if (!el.tracking) {
 				var iconEl = TRACKER_ICON.cloneNode(true);
@@ -315,21 +322,19 @@
 
 
 		findIssues().then(function (issues) {
-			var match = location.toString().match(/issues\/(\d+)/),
-				getTimeEl = function (id) {
-					var el = document.createElement('span');
-					el.innerHTML = ' · ' + formatDate(issues.get(id).get('time'));
-					el.className = LOCAL_KEY;
-					return el;
-				}
-			;
+			var getTimeEl = function (id) {
+				var el = document.createElement('span');
+				el.innerHTML = ' · ' + formatDate(issues.get(id).get('time'), 'Xh Ym');
+				el.className = LOCAL_KEY;
+				return el;
+			};
 
 			query('.' + LOCAL_KEY).forEach(function (el) {
 				el.parentNode.removeChild(el);
 			});
 
-			if (match) {
-				queryOne('.flex-table-item-primary').appendChild(getTimeEl(match[1]));
+			if (issueNumber) {
+				queryOne('.flex-table-item-primary').appendChild(getTimeEl(issueNumber));
 			}
 			else {
 				query('.issue-list-item').forEach(function (el) {
@@ -337,6 +342,45 @@
 				});
 			}
 		});
+
+
+		if (issueNumber) {
+			queryOne('#show_issue').appendChild(getIssueTrackerUI(issueNumber));
+		}
+	}
+
+
+	function getIssueTrackerUI(number) {
+		var el = window[LOCAL_KEY + '-issue'] || document.createElement('div');
+
+		el.id = LOCAL_KEY + '-issue';
+
+		findIssue(number).then(function (issue) {
+			(new Parse.Query(Time)).equalTo('issue', issue.id).find().then(function (results) {
+				var html = results.sort(function (a, b) {
+					return b.createdAt - a.createdAt;
+				}).map(function (item) {
+					var row = '';
+
+					row += '<a href="/' + item.get('login') + '">'
+						+ '<img style="margin-left: -35px" class="timeline-comment-avatar js-avatar" src="https://avatars3.githubusercontent.com/u/' + item.get('user') + '" width="24"/>'
+						+ '</a>'
+						+ '<b>' + formatDate(item.createdAt, 'd.m.Y H:I') + '</b>: '
+						+ formatDate(item.get('time'))
+					;
+
+
+					return '<div class="timeline-comment-wrapper">' + row + '</div>';
+				}).join('');
+
+				el.innerHTML = ''
+					+ '<h2>Time tracking</h2>'
+					+ html
+				;
+			});
+		});
+
+		return el;
 	}
 
 
