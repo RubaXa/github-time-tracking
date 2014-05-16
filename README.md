@@ -15,6 +15,8 @@
  ---
  ![Time tracking](https://dl.dropboxusercontent.com/s/1saqwce820z3dax/Screenshot%202014-05-16%2019.04.08.png)
  ---
+ ![Time tracking in issue](https://dl.dropboxusercontent.com/s/d09i5rqys8sbigf/Screenshot%202014-05-16%2019.08.32.png)
+ ---
  ![Issues](https://dl.dropboxusercontent.com/s/5o99jqrzqclcx16/Screenshot%202014-05-16%2017.17.21.png)
 
 
