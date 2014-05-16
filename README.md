@@ -11,13 +11,17 @@
 
 
 ### Examples
- ![Issue view](https://dl.dropboxusercontent.com/s/ijyzp40ck7x4zdo/Screenshot%202014-05-16%2017.11.18.png)
+ ![Issue view](https://dl.dropboxusercontent.com/s/l75fn0c7cy2tjob/Screenshot%202014-05-16%2023.28.02.png)
  ---
- ![Time tracking](https://dl.dropboxusercontent.com/s/1saqwce820z3dax/Screenshot%202014-05-16%2019.04.08.png)
+ ![Estimate](https://dl.dropboxusercontent.com/s/mbn87j20ht7dc15/Screenshot%202014-05-16%2023.28.37.png)
  ---
- ![Time tracking in issue](https://dl.dropboxusercontent.com/s/d09i5rqys8sbigf/Screenshot%202014-05-16%2019.08.32.png)
+ ![Time tracking](https://dl.dropboxusercontent.com/s/pilr48ehrr7zvci/Screenshot%202014-05-16%2023.29.28.png?dl=1&token_hash=AAEBtfP2XTdQ8mmNr0fBWxbHrglCHTF_RAjBwOYUwU3hxQ&expiry=1400272172)
  ---
- ![Issues](https://dl.dropboxusercontent.com/s/5o99jqrzqclcx16/Screenshot%202014-05-16%2017.17.21.png)
+ ![Issue view, progress](https://dl.dropboxusercontent.com/s/d3pd78qmu4xsjmr/Screenshot%202014-05-16%2023.29.45.png)
+ ---
+ ![Time tracking list](https://dl.dropboxusercontent.com/s/s200dd704u6n67i/Screenshot%202014-05-16%2023.30.26.png)
+ ---
+ ![Issues](https://dl.dropboxusercontent.com/s/kky77g7lzwvpov3/Screenshot%202014-05-16%2023.30.10.png)
 
 
 ### Changelog

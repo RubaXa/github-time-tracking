@@ -40,16 +40,74 @@
 	var Time = Parse.Object.extend("Time");
 
 
+	function log() {
+		var args = arguments;
+		console.log.apply(console, [LOCAL_KEY+'.'+args[0]].concat(slice.call(args, 1)));
+	}
+
+
 	/**
 	 * Request data from the user
-	 * @param  {String}  text
+	 * @param   {String}  text
+	 * @param   {Object}  fields
+	 * @param   {Object}  [events]
 	 * @returns {Promise}
 	 */
-	function prompt(text) {
-		return new Promise(function (resolve) {
-			var value = window.prompt(text);
-			resolve(value);
-		});
+	function prompt(text, fields, events) {
+		var el = document.createElement('form');
+		var html = '<div class="facebox">' +
+			'  <div class="facebox-popup"><div class="facebox-content">' +
+			'      <h2 class="facebox-header">' + text + '</h2>'
+		;
+		var remove = function (data) {
+			document.body.removeChild(el);
+			return data;
+		};
+
+		for (var name in fields) {
+			html += '<input placeholder="' + fields[name] + '" class="long" name="' + name + '" required size="30" type="text" style="margin-bottom: 10px; width: 100%;"/>';
+		}
+
+		html += '' +
+    		'      <br/><button type="submit" class="button button-block">Ok</button>' +
+  			'      <button type="button" class="facebox-close js-facebox-close"><span class="octicon octicon-remove-close"></span></button>' +
+  			'   </div></div>' +
+			'</div>'
+		;
+
+		el.innerHTML = html;
+		el.style.position = 'fixed';
+		el.style.top = '30%';
+		el.style.left = '30%';
+		el.style.zIndex = 1e6;
+
+		return new Promise(function (resolve, reject) {
+			document.body.appendChild(el);
+
+			if (events) {
+				for (var sel in events) (function (fn) {
+					queryOne(sel, el).addEventListener('click', function (evt) {
+						evt.preventDefault();
+						fn(resolve, reject);
+					}, false);
+				})(events[sel]);
+			}
+
+			queryOne('.js-facebox-close', el).addEventListener('click', function (evt) {
+				evt.preventDefault();
+				reject();
+			}, false);
+
+			queryOne('input', el).focus();
+
+			el.addEventListener('submit', function (evt) {
+				evt.preventDefault();
+				for (var name in fields) {
+					fields[name] = el[name].value;
+				}
+				resolve(fields);
+			}, false);
+		}).then(remove, remove);
 	}
 
 
@@ -118,7 +176,7 @@
 		}
 
 		return promise.then(function () {
-			console.log(LOCAL_KEY + '.initialize:', globals.applicationId, globals.javaScriptKey);
+			log('initialize:', globals.applicationId, globals.javaScriptKey);
 			Parse.initialize(globals.applicationId, globals.javaScriptKey);
 		});
 	}
@@ -129,9 +187,9 @@
 	 * @returns {Promise}
 	 */
 	function settings() {
-		return Promise.all([prompt("Application Id:"), prompt("JavaScript Key:")]).then(function (values) {
-			globals.applicationId = values[0];
-			globals.javaScriptKey = values[1];
+		return prompt("Time tacker :: Settings", { id: "Application Id", key: "JavaScript Key" }).then(function (data) {
+			globals.applicationId = data.id;
+			globals.javaScriptKey = data.key;
 		});
 	}
 
@@ -192,7 +250,8 @@
 						}
 						else {
 							newModel(Issue, {
-								time: 0,
+								spent: 0,
+								estimate: 0,
 								number: num,
 								project: project.id
 							}).then(resolve);
@@ -218,12 +277,12 @@
 					list.each(function (model) {
 						list._byId[model.get('number')] = model;
 					});
-
 					resolve(list);
 				});
 			}));
 		});
 	}
+
 
 	/**
 	 * Create cache
@@ -261,28 +320,59 @@
 	}
 
 
+	function saveTime(issue, time, type) {
+		log('saveTime:', time, type);
+
+		time = parseTime(time);
+
+		newModel(Time, {
+			time: time,
+			user: github.user,
+			login: github.login,
+			issue: issue.id,
+			type: type,
+			project: issue.get('project')
+		});
+
+		if (type == 'spent') {
+			time += issue.get(type);
+		}
+
+		issue.set(type, time).save().then(function () {
+			findIssues.clear(issue.get('project'));
+			updUI();
+		});
+	}
+
+
 	/**
 	 * Tracking time
 	 * @param {Number} number   issue number
 	 */
-	function trackTime(number) {
-		prompt("Time (7h 30m or 7:30):").then(function (time) {
-			findIssue(number).then(function (issue) {
-				time = parseTime(time);
-
-				newModel(Time, {
-					time: time,
-					user: github.user,
-					login: github.login,
-					issue: issue.id,
-					project: issue.get('project')
-				});
-
-				issue.set('time', issue.get('time') + time).save().then(function () {
-					findIssues.clear(issue.get('project'));
-					updUI();
-				});
+	function spenTime(number) {
+		findIssue(number).then(function (issue) {
+			prompt(
+				'Time tracker (<a href="#" class="js-estimate">' + (issue.get('estimate') ? formatDate(issue.get('estimate')) : 'estimate') + '</a>)',
+				{ time: 'Time (7h 30m or 7:30)' },
+				{ '.js-estimate': function (resolve, reject) {
+						reject();
+						estimateIssue(issue);
+					}
+				}
+			).then(function (data) {
+				saveTime(issue, data.time, 'spent');
 			});
+		});
+	}
+
+
+	/**
+	 * Estimate issue
+	 * @param {Issue} issue
+	 */
+	function estimateIssue(issue) {
+		prompt('Estimate', { time: 'Time (7h 30m or 7:30)' }).then(function (data) {
+			saveTime(issue, data.time, 'estimate');
 		});
 	}
 
@@ -311,7 +401,7 @@
 					if (!number) {
 						number = el.parentNode.id.split('_')[1]
 					}
-					trackTime(number);
+					spenTime(number);
 				}, false);
 
 				el.tracking = true;
@@ -324,8 +414,23 @@
 		findIssues().then(function (issues) {
 			var getTimeEl = function (id) {
 				var el = document.createElement('span');
-				el.innerHTML = ' · ' + formatDate(issues.get(id).get('time'), 'Xh Ym');
+				var issue = issues.get(id);
+				var html = ' · ';
+				var spent = issue.get('spent');
+				var estimate = issue.get('estimate');
+
+				if (estimate) {
+					html += '<span class="progress-bar" style=" font-size: 13px; display: inline-block; vertical-align: middle">' +
+						'<span class="progress" style="width: '+(spent/estimate*100)+'%">' +
+						'<span style="top: -2px; text-shadow: 0 1px 1px rgba(0,0,0,.4); position: relative; color: #fff; padding: 0 5px; white-space: nowrap">' + formatDate(spent, 'Xh Ym') + '</span>' +
+						'</span></span>';
+				} else {
+					html += formatDate(spent, 'Xh Ym');
+				}
+
+				el.innerHTML = html;
 				el.className = LOCAL_KEY;
+
 				return el;
 			};
 
@@ -367,8 +472,8 @@
 						+ '</a>'
 						+ '<b>' + formatDate(item.createdAt, 'd.m.Y H:I') + '</b>: '
 						+ formatDate(item.get('time'))
+						+ ' (' + item.get('type') + ')'
 					;
-
 
 					return '<div class="timeline-comment-wrapper">' + row + '</div>';
 				}).join('');
