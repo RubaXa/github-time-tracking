@@ -18,4 +18,4 @@
 
 
 ### Changelog
- - *0.1.0* — Time tracking
+ - **0.1.0** — Time tracking
