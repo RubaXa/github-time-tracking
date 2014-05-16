@@ -2,10 +2,10 @@
 
 
 ### Usage
- 1. Register the free [Parse.com](https://www.parse.com/#signup) account;
- 2. Create App [github-time-tracking](https://www.parse.com/apps/new);
- 3. Copy-paste [Application ID & JavaScript Key](https://www.parse.com/apps/quickstart?app_id=github-time-tracker#parse_data/web/existing);
- 4. Install the [github-time-tracking.user.js](github-time-tracking.user.js);
+ 1. Register the free [Parse.com](https://www.parse.com/#signup) account
+ 2. Create App [github-time-tracking](https://www.parse.com/apps/new)
+ 3. Copy-paste [Application ID & JavaScript Key](https://www.parse.com/apps/quickstart?app_id=github-time-tracker#parse_data/web/existing)
+ 4. Install the [github-time-tracking.user.js](github-time-tracking.user.js)
  5. Open [project issus](https://github.com/RubaXa/github-time-tracking/issues/1)
  6. Click on clock, profit.
 
