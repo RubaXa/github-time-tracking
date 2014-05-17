@@ -65,7 +65,8 @@
 		};
 
 		for (var name in fields) {
-			html += '<input placeholder="' + fields[name] + '" class="long" name="' + name + '" required size="30" type="text" style="margin-bottom: 10px; width: 100%;"/>';
+			var inp = fields[name];
+			html += '<input value="' + (inp.value || '') + '" placeholder="' + (inp.hint || inp) + '" class="long" name="' + name + '" required size="30" type="text" style="margin-bottom: 10px; width: 100%;"/>';
 		}
 
 		html += '' +
@@ -138,25 +139,31 @@
 	 */
 	function init() {
 		globals = JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}');
+		localStorage.setItem(LOCAL_KEY + '-lock', true);
 
-
-		window.addEventListener('unload', function () {
-			localStorage.setItem(LOCAL_KEY, JSON.stringify(globals));
+		window.addEventListener('beforeunload', function () {
+			if (localStorage.getItem(LOCAL_KEY + '-lock')) {
+				localStorage.setItem(LOCAL_KEY, JSON.stringify(globals));
+			}
 		}, false);
+
+
+		var invite = location.toString().split(LOCAL_KEY+'=')[1];
+		if (invite) {
+			invite = invite.split('.');
+			location.hash = '';
+
+			globals[currentProject()] = {
+				applicationId: invite[0],
+				javaScriptKey: invite[1]
+			};
+		}
 
 
 		github = {
 			user: queryOne('meta[name="octolytics-actor-id"]').getAttribute('content'),
 			login: queryOne('meta[name="octolytics-actor-login"]').getAttribute('content')
 		};
-
-
-		queryOne('#user-links').appendChild((function () {
-			var el = document.createElement('li');
-			el.appendChild(TRACKER_ICON.cloneNode());
-			el.addEventListener('click', settings, false);
-			return el;
-		})());
 
 
 		updUI();
@@ -170,14 +177,15 @@
 	 */
 	function initialize() {
 		var promise = Promise.resolve();
+		var options = globals[currentProject()] || globals;
 
-		if (!(globals.applicationId || globals.javaScriptKey)) {
-			promise = settings();
+		if (!(options.applicationId || options.javaScriptKey)) {
+			promise = Promise.reject();
 		}
 
 		return promise.then(function () {
-			log('initialize:', globals.applicationId, globals.javaScriptKey);
-			Parse.initialize(globals.applicationId, globals.javaScriptKey);
+			log('initialize:', options.applicationId, options.javaScriptKey);
+			Parse.initialize(options.applicationId, options.javaScriptKey);
 		});
 	}
 
@@ -187,10 +195,36 @@
 	 * @returns {Promise}
 	 */
 	function settings() {
-		return prompt("Time tacker :: Settings", { id: "Application Id", key: "JavaScript Key" }).then(function (data) {
-			globals.applicationId = data.id;
-			globals.javaScriptKey = data.key;
+		var options = globals[currentProject()] || globals;
+
+		return prompt(
+			'Settings (<a href="#" class="invite">invite</a>)',
+			{
+				id: { hint: 'Application Id', value: options.applicationId },
+				key: { hint: 'JavaScript Key', value: options.javaScriptKey }
+			},
+			{
+				'.invite': function (resolve, reject) {
+					reject();
+					inviteUser();
+				}
+			}
+		).then(function (data) {
+			options.applicationId = data.id;
+			options.javaScriptKey = data.key;
+
+			clearCache(currentProject());
+			updUI();
 		});
+	}
+
+
+	/**
+	 * Invite user
+	 */
+	function inviteUser() {
+		var link = location.toString().split('?')[0] + '#' + LOCAL_KEY + '=' + globals.applicationId + '.' + globals.javaScriptKey;
+		prompt('Invite user', { invite: { hint: 'Link', value: link } });
 	}
 
 
@@ -210,12 +244,17 @@
 	}
 
 
+	function currentProject() {
+		return location.toString().match(/github\.com\/\w+\/([^/]+)/i)[1];
+	}
+
+
 	/**
 	 * Find current project
 	 * @returns {Promise}
 	 */
 	function findProject() {
-		var project = location.toString().match(/github\.com\/\w+\/([^/]+)/i)[1];
+		var project = currentProject();
 
 		return findProject[project] || (findProject[project] = initialize().then(function () {
 			// Search or create project
@@ -285,11 +324,12 @@
 
 
 	/**
-	 * Create cache
+	 * Clear cache
 	 * @param {Number} project
 	 */
-	findIssues.clear = function (project) {
+	function clearCache(project) {
 		findIssues[project] = null;
+		findProject[project] = null;
 	};
 
 
@@ -339,7 +379,7 @@
 		}
 
 		issue.set(type, time).save().then(function () {
-			findIssues.clear(issue.get('project'));
+			clearCache(issue.get('project'));
 			updUI();
 		});
 	}
@@ -388,6 +428,20 @@
 
 	function updUI() {
 		var issueNumber = (location.toString().match(/issues\/(\d+)/) || [])[1];
+
+
+		query('#issues_next .issues-list-options').forEach(function (el) {
+			if (!el.tracking) {
+				el.tracking = true;
+				var btn = document.createElement('a');
+				btn.className = 'button minibutton';
+				btn.innerHTML = 'Time tracker';
+				btn.style.float = 'right';
+				btn.addEventListener('click', settings, false);
+				el.appendChild(btn);
+			}
+		});
+
 
 		query('.list-group-item-number,.gh-header-number').forEach(function (el) {
 			if (!el.tracking) {

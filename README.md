@@ -4,13 +4,16 @@
 ### Usage
  1. Register the free [Parse.com](https://www.parse.com/#signup) account
  2. Create App [github-time-tracking](https://www.parse.com/apps/new)
- 3. Copy-paste [Application ID & JavaScript Key](https://www.parse.com/apps/quickstart?app_id=github-time-tracker#parse_data/web/existing)
+ 3. Copy-paste Application ID & JavaScript Key
  4. Install the [github-time-tracking.user.js](github-time-tracking.user.js)
- 5. Open [project issus](https://github.com/RubaXa/github-time-tracking/issues/1)
+ 5. Open [project issues](https://github.com/RubaXa/github-time-tracking/issues/)
  6. Click on clock, profit.
+ 7. Invite friends
 
 
-### Examples
+### Screenshots
+ ![Settings](https://dl.dropboxusercontent.com/s/3qv6xad2yh5q6q6/Screenshot%202014-05-17%2013.27.32.png)
+ ---
  ![Issue view](https://dl.dropboxusercontent.com/s/l75fn0c7cy2tjob/Screenshot%202014-05-16%2023.28.02.png)
  ---
  ![Estimate](https://dl.dropboxusercontent.com/s/mbn87j20ht7dc15/Screenshot%202014-05-16%2023.28.37.png)
@@ -22,6 +25,8 @@
  ![Time tracking list](https://dl.dropboxusercontent.com/s/s200dd704u6n67i/Screenshot%202014-05-16%2023.30.26.png)
  ---
  ![Issues](https://dl.dropboxusercontent.com/s/kky77g7lzwvpov3/Screenshot%202014-05-16%2023.30.10.png)
+ ---
+ ![Invite](https://dl.dropboxusercontent.com/s/38goi95rhx857ky/Screenshot%202014-05-17%2013.28.32.png)
 
 
 ### Changelog
