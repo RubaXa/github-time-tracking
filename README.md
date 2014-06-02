@@ -14,15 +14,15 @@
 ### Screenshots
  ![Settings](https://dl.dropboxusercontent.com/s/3qv6xad2yh5q6q6/Screenshot%202014-05-17%2013.27.32.png)
  ---
- ![Issue view](https://dl.dropboxusercontent.com/s/l75fn0c7cy2tjob/Screenshot%202014-05-16%2023.28.02.png)
+ ![Issue view](https://photos-4.dropbox.com/t/0/AABgLxHHFQx_EpW5s2CbwgDXhLvjAgMd7SY_7uwhr6Aygg/12/42505328/png/1024x768/3/1401714000/0/2/Screenshot%202014-06-02%2015.49.30.png/kGTCb_Td5K5VXw4roC07yx4S5L2C8cnJVmOk0n0FUSA)
  ---
- ![Estimate](https://dl.dropboxusercontent.com/s/mbn87j20ht7dc15/Screenshot%202014-05-16%2023.28.37.png)
+ ![Estimate](https://photos-1.dropbox.com/t/0/AACJit-OfbF3fVekjEvfH6K6jPcSI_1rJedkE1WgjCG2XA/12/42505328/png/1024x768/3/1401714000/0/2/Screenshot%202014-06-02%2015.51.59.png/fOG5p1KeLUiBLHHwmOTI7-6CXxqrUOi-O_GA7NW-cn0)
  ---
- ![Time tracking](https://dl.dropboxusercontent.com/s/pilr48ehrr7zvci/Screenshot%202014-05-16%2023.29.28.png?dl=1&token_hash=AAEBtfP2XTdQ8mmNr0fBWxbHrglCHTF_RAjBwOYUwU3hxQ&expiry=1400272172)
+ ![Time tracking](https://photos-6.dropbox.com/t/0/AAAeIwNUtIFQSObX1n1526crDItWtOD58Eu8owuHLQ-6Jw/12/42505328/png/1024x768/3/1401714000/0/2/Screenshot%202014-06-02%2015.54.53.png/WHN39DIAac9r48S40CBwyBK11SQIAd0B22iKqld-7mw)
  ---
  ![Issue view, progress](https://dl.dropboxusercontent.com/s/d3pd78qmu4xsjmr/Screenshot%202014-05-16%2023.29.45.png)
  ---
- ![Time tracking list](https://dl.dropboxusercontent.com/s/s200dd704u6n67i/Screenshot%202014-05-16%2023.30.26.png)
+ ![Time tracking list](https://photos-4.dropbox.com/t/0/AADwUODiytHZq8i8TzKg3rdWflMNPx2NYXeg-8yovHHlPA/12/42505328/png/1024x768/3/1401714000/0/2/Screenshot%202014-06-02%2015.56.05.png/xeyitxMDhaGqE0Oz5J7eDgrggigvkcLpX_ipa0fPAkU)
  ---
  ![Issues](https://dl.dropboxusercontent.com/s/kky77g7lzwvpov3/Screenshot%202014-05-16%2023.30.10.png)
  ---
@@ -30,4 +30,5 @@
 
 
 ### Changelog
+ - **0.2.0** — Comment in spent/estimated time.
  - **0.1.0** — Time tracking

@@ -2,7 +2,7 @@
 // @name GitHub time traking
 // @author RubaXa <trash@rubaxa.org>
 // @license MIT
-// @version 0.1.0
+// @version 0.2.0
 // @include https://github.com/*/issues*
 // ==/UserScript==
 
@@ -184,7 +184,6 @@
 		}
 
 		return promise.then(function () {
-			log('initialize:', options.applicationId, options.javaScriptKey);
 			Parse.initialize(options.applicationId, options.javaScriptKey);
 		});
 	}
@@ -360,8 +359,8 @@
 	}
 
 
-	function saveTime(issue, time, type) {
-		log('saveTime:', time, type);
+	function saveTime(issue, time, type, comment) {
+		log('saveTime:', time, type, comment);
 
 		time = parseTime(time);
 
@@ -371,7 +370,8 @@
 			login: github.login,
 			issue: issue.id,
 			type: type,
-			project: issue.get('project')
+			project: issue.get('project'),
+			comment: comment || ''
 		});
 
 		if (type == 'spent') {
@@ -393,14 +393,17 @@
 		findIssue(number).then(function (issue) {
 			prompt(
 				'Time tracker (<a href="#" class="js-estimate">' + (issue.get('estimate') ? formatDate(issue.get('estimate')) : 'estimate') + '</a>)',
-				{ time: 'Time (7h 30m or 7:30)' },
+				{
+					time: 'Time (7h 30m or 7:30)',
+					comment: 'Comment'
+				},
 				{ '.js-estimate': function (resolve, reject) {
 						reject();
 						estimateIssue(issue);
 					}
 				}
 			).then(function (data) {
-				saveTime(issue, data.time, 'spent');
+				saveTime(issue, data.time, 'spent', data.comment);
 			});
 		});
 	}
@@ -411,8 +414,11 @@
 	 * @param {Issue} issue
 	 */
 	function estimateIssue(issue) {
-		prompt('Estimate', { time: 'Time (7h 30m or 7:30)' }).then(function (data) {
-			saveTime(issue, data.time, 'estimate');
+		prompt('Estimate', {
+			time: 'Time (7h 30m or 7:30)',
+			comment: 'Comment'
+		}).then(function (data) {
+			saveTime(issue, data.time, 'estimate', data.comment);
 		});
 	}
 
@@ -430,6 +436,7 @@
 		var issueNumber = (location.toString().match(/issues\/(\d+)/) || [])[1];
 
 
+		// Settings
 		query('#issues_next .issues-list-options').forEach(function (el) {
 			if (!el.tracking) {
 				el.tracking = true;
@@ -443,69 +450,72 @@
 		});
 
 
-		query('.list-group-item-number,.gh-header-number').forEach(function (el) {
-			if (!el.tracking) {
-				var iconEl = TRACKER_ICON.cloneNode(true);
+		initialize().then(function () {
+			// Issue
+			query('.list-group-item-number,.gh-header-number').forEach(function (el) {
+				if (!el.tracking) {
+					var iconEl = TRACKER_ICON.cloneNode(true);
 
-				iconEl.addEventListener('click', function (evt) {
-					evt.preventDefault();
-					evt.stopPropagation();
+					iconEl.addEventListener('click', function (evt) {
+						evt.preventDefault();
+						evt.stopPropagation();
 
-					var number = (location.toString().match(/issues\/(\d+)/) || [])[1];
-					if (!number) {
-						number = el.parentNode.id.split('_')[1]
-					}
-					spenTime(number);
-				}, false);
+						var number = (location.toString().match(/issues\/(\d+)/) || [])[1];
+						if (!number) {
+							number = el.parentNode.id.split('_')[1]
+						}
+						spenTime(number);
+					}, false);
 
-				el.tracking = true;
-				el.appendChild(document.createTextNode(' '));
-				el.appendChild(iconEl);
-			}
-		});
-
-
-		findIssues().then(function (issues) {
-			var getTimeEl = function (id) {
-				var el = document.createElement('span');
-				var issue = issues.get(id);
-				var html = ' · ';
-				var spent = issue.get('spent');
-				var estimate = issue.get('estimate');
-
-				if (estimate) {
-					html += '<span class="progress-bar" style=" font-size: 13px; display: inline-block; vertical-align: middle">' +
-						'<span class="progress" style="width: '+(spent/estimate*100)+'%">' +
-						'<span style="top: -2px; text-shadow: 0 1px 1px rgba(0,0,0,.4); position: relative; color: #fff; padding: 0 5px; white-space: nowrap">' + formatDate(spent, 'Xh Ym') + '</span>' +
-						'</span></span>';
-				} else {
-					html += formatDate(spent, 'Xh Ym');
+					el.tracking = true;
+					el.appendChild(document.createTextNode(' '));
+					el.appendChild(iconEl);
 				}
+			});
 
-				el.innerHTML = html;
-				el.className = LOCAL_KEY;
 
-				return el;
-			};
+			// Issues
+			findIssues().then(function (issues) {
+				var getTimeEl = function (id) {
+					var el = document.createElement('span');
+					var issue = issues.get(id);
+					var html = ' · ';
+					var spent = issue.get('spent');
+					var estimate = issue.get('estimate');
 
-			query('.' + LOCAL_KEY).forEach(function (el) {
-				el.parentNode.removeChild(el);
+					if (estimate) {
+						html += '<span title="' + formatDate(estimate, 'Xh Ym') + '" class="progress-bar" style=" font-size: 13px; display: inline-block; vertical-align: middle">' +
+							'<span class="progress" style="width: '+(spent/estimate*100)+'%">' +
+							'<span style="top: -2px; text-shadow: 0 1px 1px rgba(0,0,0,.4); position: relative; color: #fff; padding: 0 5px; white-space: nowrap">' + formatDate(spent, 'Xh Ym') + '</span>' +
+							'</span></span>';
+					} else {
+						html += formatDate(spent, 'Xh Ym');
+					}
+
+					el.innerHTML = html;
+					el.className = LOCAL_KEY;
+
+					return el;
+				};
+
+				query('.' + LOCAL_KEY).forEach(function (el) {
+					el.parentNode.removeChild(el);
+				});
+
+				if (issueNumber) {
+					queryOne('.flex-table-item-primary').appendChild(getTimeEl(issueNumber));
+				}
+				else {
+					query('.issue-list-item').forEach(function (el) {
+						queryOne('.list-group-item-meta li', el).appendChild(getTimeEl(el.id.split('_')[1]));
+					});
+				}
 			});
 
 			if (issueNumber) {
-				queryOne('.flex-table-item-primary').appendChild(getTimeEl(issueNumber));
-			}
-			else {
-				query('.issue-list-item').forEach(function (el) {
-					queryOne('.list-group-item-meta li', el).appendChild(getTimeEl(el.id.split('_')[1]));
-				});
+				queryOne('#show_issue').appendChild(getIssueTrackerUI(issueNumber));
 			}
 		});
-
-
-		if (issueNumber) {
-			queryOne('#show_issue').appendChild(getIssueTrackerUI(issueNumber));
-		}
 	}
 
 
@@ -527,6 +537,7 @@
 						+ '<b>' + formatDate(item.createdAt, 'd.m.Y H:I') + '</b>: '
 						+ formatDate(item.get('time'))
 						+ ' (' + item.get('type') + ')'
+						+ (item.get('comment') ? ' «' + item.get('comment') + '»' : '')
 					;
 
 					return '<div class="timeline-comment-wrapper">' + row + '</div>';
