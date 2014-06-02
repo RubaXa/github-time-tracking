@@ -202,7 +202,7 @@
 	 * @returns {Promise}
 	 */
 	function settings() {
-		var options = globals[currentProject()] || globals;
+		var options = globals[currentProject()] || (globals[currentProject()] = {});
 
 		return prompt(
 			'Settings (<a href="#" class="invite">invite</a>)',
