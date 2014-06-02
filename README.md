@@ -5,7 +5,7 @@
  1. Register the free [Parse.com](https://www.parse.com/#signup) account
  2. Create App [github-time-tracking](https://www.parse.com/apps/new)
  3. Copy Application ID & JavaScript Key
- 4. Install the [github-time-tracking.user.js](https://github.com/RubaXa/github-time-tracking/raw/master/github-time-tracking.user.js)
+ 4. Install the [github-time-tracking.user.js](https://github.com/RubaXa/github-time-tracking/raw/master/github-time-tracking.user.js) ([Video instruction](https://vimeo.com/97118127))
  5. Open [project issues](https://github.com/RubaXa/github-time-tracking/issues/), click "Time tracker" and paste Application ID & JavaScript Key
  6. Click on clock, profit
 
