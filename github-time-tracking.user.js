@@ -66,7 +66,15 @@
 
 		for (var name in fields) {
 			var inp = fields[name];
-			html += '<input value="' + (inp.value || '') + '" placeholder="' + (inp.hint || inp) + '" class="long" name="' + name + '" required size="30" type="text" style="margin-bottom: 10px; width: 100%;"/>';
+			var hint = (inp.hint || inp);
+			var required = hint.charAt(0) != '?';
+
+			html += '<input value="'
+				+ (inp.value || '')
+				+ '" placeholder="' + hint.replace(/^\?/, '')
+				+ '" class="long" name="' + name + '"'
+				+ (required ? ' required' : '')
+				+ ' size="30" type="text" style="margin-bottom: 10px; width: 100%;"/>';
 		}
 
 		html += '' +
@@ -395,7 +403,7 @@
 				'Time tracker (<a href="#" class="js-estimate">' + (issue.get('estimate') ? formatDate(issue.get('estimate')) : 'estimate') + '</a>)',
 				{
 					time: 'Time (7h 30m or 7:30)',
-					comment: 'Comment'
+					comment: '?Comment'
 				},
 				{ '.js-estimate': function (resolve, reject) {
 						reject();
@@ -416,7 +424,7 @@
 	function estimateIssue(issue) {
 		prompt('Estimate', {
 			time: 'Time (7h 30m or 7:30)',
-			comment: 'Comment'
+			comment: '?Comment'
 		}).then(function (data) {
 			saveTime(issue, data.time, 'estimate', data.comment);
 		});
